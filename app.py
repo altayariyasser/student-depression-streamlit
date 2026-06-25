@@ -7,9 +7,7 @@ import plotly.express as px
 from pathlib import Path
 
 
-# =========================
-# Page Settings
-# =========================
+
 
 st.set_page_config(
     page_title="Student Depression EDA",
@@ -19,9 +17,7 @@ st.set_page_config(
 sns.set_theme(style="whitegrid", font_scale=1.05)
 
 
-# =========================
-# Custom CSS
-# =========================
+
 
 st.markdown(
     """
@@ -44,9 +40,7 @@ st.markdown(
 )
 
 
-# =========================
-# Load and Clean Data
-# =========================
+
 
 @st.cache_data
 def load_data():
@@ -57,33 +51,25 @@ def load_data():
 
     df_clean = df.copy()
 
-    # Drop id because it is only an identifier
     df_clean = df_clean.drop(columns=["id"])
 
-    # Drop missing Financial Stress because it is important for analysis
     df_clean = df_clean.dropna(subset=["Financial Stress"])
 
-    # Keep only students
     df_clean = df_clean[df_clean["Profession"] == "Student"].copy()
 
-    # Drop Profession because now all records are students
     df_clean = df_clean.drop(columns=["Profession"])
 
-    # Remove unclear categories
     df_clean = df_clean[df_clean["Dietary Habits"] != "Others"].copy()
     df_clean = df_clean[df_clean["Sleep Duration"] != "Others"].copy()
 
-    # Drop columns not useful for students
     df_clean = df_clean.drop(
         columns=["Work Pressure", "Job Satisfaction"],
         errors="ignore"
     )
 
-    # Remove invalid / very rare city values
     city_counts = df_clean["City"].value_counts()
     df_clean = df_clean[df_clean["City"].map(city_counts) >= 10].copy()
 
-    # Group degrees
     bachelors = [
         "B.Ed", "B.Com", "B.Arch", "BCA", "B.Tech", "BHM",
         "BSc", "B.Pharm", "BBA", "LLB", "BE", "BA"
@@ -109,14 +95,61 @@ def load_data():
 
     df_clean["Degree Level"] = df_clean["Degree"].apply(group_degree)
 
-    # Remove Other degree level so it does not appear in filters
     df_clean = df_clean[df_clean["Degree Level"] != "Other"].copy()
 
     return df, df_clean
 
 
 df, df_clean = load_data()
+# Create a copy for encoding
+df_encoded = df_clean.copy()
 
+# Encode Gender
+df_encoded["Gender"] = df_encoded["Gender"].map({
+    "Male": 0,
+    "Female": 1
+})
+
+# Encode suicidal thoughts
+df_encoded["Have you ever had suicidal thoughts ?"] = df_encoded["Have you ever had suicidal thoughts ?"].map({
+    "No": 0,
+    "Yes": 1
+})
+
+# Encode family history
+df_encoded["Family History of Mental Illness"] = df_encoded["Family History of Mental Illness"].map({
+    "No": 0,
+    "Yes": 1
+})
+
+# Encode Sleep Duration
+df_encoded["Sleep Duration"] = df_encoded["Sleep Duration"].map({
+    "Less than 5 hours": 0,
+    "5-6 hours": 1,
+    "7-8 hours": 2,
+    "More than 8 hours": 3
+})
+
+# Encode Dietary Habits
+df_encoded["Dietary Habits"] = df_encoded["Dietary Habits"].map({
+    "Unhealthy": 0,
+    "Moderate": 1,
+    "Healthy": 2
+})
+
+# Encode Degree Level
+df_encoded["Degree Level"] = df_encoded["Degree Level"].map({
+    "Class 12": 0,
+    "Bachelors": 1,
+    "Masters": 2,
+    "PhD": 3
+})
+
+# Drop original high-cardinality or unnecessary text columns
+df_encoded = df_encoded.drop(columns=["City", "Degree"], errors="ignore")
+
+# Check encoded dataset
+df_encoded.head()
 
 
 # =========================
@@ -236,14 +269,38 @@ else:
 
     col1, col2, col3, col4, col5 = st.columns(5)
 
-    col1.metric("Students", f"{total_students:,}")
-    col2.metric("Depressed Students", f"{depressed_students:,}")
-    col3.metric("Depression Rate", f"{depression_rate:.1f}%")
-    col4.metric("Avg Academic Pressure", f"{avg_academic_pressure:.2f} / 5")
-    col5.metric("Avg Financial Stress", f"{avg_financial_stress:.2f} / 5")
+    with col1:
+        st.metric("Students", f"{total_students:,}")
+        st.caption("Number of students after applying filters.")
+
+    with col2:
+        st.metric("Depressed Students", f"{depressed_students:,}")
+        st.caption("Students labeled as depressed in the dataset.")
+
+    with col3:
+        st.metric("Depression Rate", f"{depression_rate:.1f}%")
+        st.caption("Percentage of students with depression.")
+
+    with col4:
+        st.metric("Avg Academic Pressure", f"{avg_academic_pressure:.2f} / 5")
+        st.caption("Average pressure level. 5 means highest pressure.")
+
+    with col5:
+        st.metric("Avg Financial Stress", f"{avg_financial_stress:.2f} / 5")
+        st.caption("Average stress level. 5 means highest stress.")
+
+    with st.expander("What do these numbers mean?"):
+        st.write(
+            """
+            - **Students**: total number of students included after using the sidebar filters.
+            - **Depressed Students**: number of students where the Depression value is 1.
+            - **Depression Rate**: percentage of students classified as depressed.
+            - **Avg Academic Pressure**: average academic pressure score from 0 to 5.
+            - **Avg Financial Stress**: average financial stress score from 1 to 5.
+            """
+        )
 
 st.markdown("---")
-
 
 
 # =========================
