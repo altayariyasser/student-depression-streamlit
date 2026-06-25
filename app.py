@@ -45,7 +45,6 @@ st.markdown(
 @st.cache_data
 def load_data():
 
-    # Relative path for GitHub / Streamlit Cloud deployment
     data_path = Path(__file__).parent / "student_depression.csv"
     df = pd.read_csv(data_path)
 
@@ -110,19 +109,16 @@ df_encoded["Gender"] = df_encoded["Gender"].map({
     "Female": 1
 })
 
-# Encode suicidal thoughts
 df_encoded["Have you ever had suicidal thoughts ?"] = df_encoded["Have you ever had suicidal thoughts ?"].map({
     "No": 0,
     "Yes": 1
 })
 
-# Encode family history
 df_encoded["Family History of Mental Illness"] = df_encoded["Family History of Mental Illness"].map({
     "No": 0,
     "Yes": 1
 })
 
-# Encode Sleep Duration
 df_encoded["Sleep Duration"] = df_encoded["Sleep Duration"].map({
     "Less than 5 hours": 0,
     "5-6 hours": 1,
@@ -130,14 +126,12 @@ df_encoded["Sleep Duration"] = df_encoded["Sleep Duration"].map({
     "More than 8 hours": 3
 })
 
-# Encode Dietary Habits
 df_encoded["Dietary Habits"] = df_encoded["Dietary Habits"].map({
     "Unhealthy": 0,
     "Moderate": 1,
     "Healthy": 2
 })
 
-# Encode Degree Level
 df_encoded["Degree Level"] = df_encoded["Degree Level"].map({
     "Class 12": 0,
     "Bachelors": 1,
@@ -145,10 +139,8 @@ df_encoded["Degree Level"] = df_encoded["Degree Level"].map({
     "PhD": 3
 })
 
-# Drop original high-cardinality or unnecessary text columns
 df_encoded = df_encoded.drop(columns=["City", "Degree"], errors="ignore")
 
-# Check encoded dataset
 df_encoded.head()
 
 
