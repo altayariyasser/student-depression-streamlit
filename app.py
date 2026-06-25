@@ -100,10 +100,8 @@ def load_data():
 
 
 df, df_clean = load_data()
-# Create a copy for encoding
 df_encoded = df_clean.copy()
 
-# Encode Gender
 df_encoded["Gender"] = df_encoded["Gender"].map({
     "Male": 0,
     "Female": 1
@@ -139,14 +137,12 @@ df_encoded["Degree Level"] = df_encoded["Degree Level"].map({
     "PhD": 3
 })
 
-df_encoded = df_encoded.drop(columns=["City", "Degree"], errors="ignore")
+df_encoded = df_encoded.drop(columns=["Degree"], errors="ignore")
 
 df_encoded.head()
 
 
-# =========================
-# Dashboard Header
-# =========================
+
 
 st.title("Student Depression — Exploratory Data Analysis")
 
@@ -157,14 +153,9 @@ st.write(
 st.markdown("---")
 
 
-# =========================
-# Sidebar Filters
-# =========================
-
 st.sidebar.header("Filters")
 
 
-# Gender filter
 gender_options = sorted(df_clean["Gender"].dropna().unique())
 
 selected_gender = st.sidebar.multiselect(
@@ -175,7 +166,6 @@ selected_gender = st.sidebar.multiselect(
 )
 
 
-# Age filter
 min_age = int(df_clean["Age"].min())
 max_age = int(df_clean["Age"].max())
 
@@ -188,7 +178,6 @@ selected_age = st.sidebar.slider(
 )
 
 
-# Degree Level filter
 degree_options = sorted(df_clean["Degree Level"].dropna().unique())
 
 selected_degree = st.sidebar.multiselect(
@@ -199,7 +188,6 @@ selected_degree = st.sidebar.multiselect(
 )
 
 
-# Sleep Duration filter
 sleep_options = [
     "Less than 5 hours",
     "5-6 hours",
@@ -215,7 +203,6 @@ selected_sleep = st.sidebar.multiselect(
 )
 
 
-# Dietary Habits filter
 diet_options = [
     "Healthy",
     "Moderate",
@@ -230,9 +217,7 @@ selected_diet = st.sidebar.multiselect(
 )
 
 
-# =========================
-# Apply Filters
-# =========================
+
 
 filtered_df = df_clean[
     (df_clean["Gender"].isin(selected_gender)) &
@@ -243,9 +228,7 @@ filtered_df = df_clean[
 ].copy()
 
 
-# =========================
-# Key Metrics
-# =========================
+
 
 st.subheader("Key Metrics")
 
@@ -295,9 +278,7 @@ else:
 st.markdown("---")
 
 
-# =========================
-# Function: Depression Rate Bar Chart
-# =========================
+
 
 def show_depression_rate_chart(data, feature, palette="viridis", order=None):
 
@@ -356,9 +337,7 @@ def show_depression_rate_chart(data, feature, palette="viridis", order=None):
     plt.close(fig)
 
 
-# =========================
-# Function: Count Chart
-# =========================
+
 
 def show_count_chart(data, feature, order=None):
 
@@ -398,9 +377,7 @@ def show_count_chart(data, feature, order=None):
     plt.close(fig)
 
 
-# =========================
-# Function: Trend Chart
-# =========================
+
 
 def show_rate_trend_chart(data, feature):
 
@@ -459,9 +436,7 @@ def show_rate_trend_chart(data, feature):
     plt.close(fig)
 
 
-# =========================
-# Function: Boxplot by Depression
-# =========================
+
 
 def show_boxplot_by_depression(data, feature):
 
@@ -508,9 +483,6 @@ def show_boxplot_by_depression(data, feature):
     plt.close(fig)
 
 
-# =========================
-# Function: Overview Pie
-# =========================
 
 def show_overview_pie(data):
 
@@ -548,9 +520,6 @@ def show_overview_pie(data):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# =========================
-# Function: Age Histogram
-# =========================
 
 def show_age_histogram_by_depression(data):
 
@@ -586,9 +555,6 @@ def show_age_histogram_by_depression(data):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# =========================
-# Function: Suicidal Thoughts Rate
-# =========================
 
 def show_suicidal_thoughts_rate(data):
 
@@ -636,10 +602,6 @@ def show_suicidal_thoughts_rate(data):
     st.plotly_chart(fig, use_container_width=True)
 
 
-# =========================
-# Function: Correlation Matrix
-# =========================
-
 def show_correlation_matrix(data):
 
     numeric_data = data.select_dtypes(include=["int64", "float64"]).copy()
@@ -676,10 +638,6 @@ def show_correlation_matrix(data):
 
     st.pyplot(fig)
     plt.close(fig)
-
-# =========================
-# Function: Work/Study Hours Boxplot
-# =========================
 
 def show_work_study_hours_by_depression(data):
 
@@ -727,10 +685,6 @@ def show_work_study_hours_by_depression(data):
     st.pyplot(fig)
     plt.close(fig)
 
-
-# =========================
-# Function: Sleep + Diet Heatmap
-# =========================
 
 def show_sleep_diet_heatmap(data):
 
@@ -792,10 +746,6 @@ tab1, tab2, tab3, tab4 = st.tabs([
 ])
 
 
-# =========================
-# Tab 1: Overview
-# =========================
-
 with tab1:
 
     st.subheader("Overview")
@@ -814,17 +764,10 @@ with tab1:
 
         st.markdown("### Depression Rate by Suicidal Thoughts History")
 
-        st.write(
-            "This is the single strongest signal in the dataset — included here for context, not as a cause of depression, "
-            "since the two are closely linked conditions rather than one causing the other."
-        )
+        
 
         show_suicidal_thoughts_rate(filtered_df)
 
-
-# =========================
-# Tab 2: Academic Factors
-# =========================
 
 with tab2:
 
@@ -858,10 +801,6 @@ with tab2:
         with col4:
             show_rate_trend_chart(filtered_df, "Work/Study Hours")
 
-
-# =========================
-# Tab 3: Lifestyle Factors
-# =========================
 
 with tab3:
 
@@ -905,11 +844,6 @@ with tab3:
 
         with col4:
             show_sleep_diet_heatmap(filtered_df)
-
-
-# =========================
-# Tab 4: Correlation & Dataset
-# =========================
 
 with tab4:
 
