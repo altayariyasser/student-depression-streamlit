@@ -52,8 +52,7 @@ st.markdown(
 def load_data():
 
     # Relative path for GitHub / Streamlit Cloud deployment
-    data_path = Path(__file__).parent / "data" / "student_depression.csv"
-
+    data_path = Path(__file__).parent / "student_depression.csv"
     df = pd.read_csv(data_path)
 
     df_clean = df.copy()
